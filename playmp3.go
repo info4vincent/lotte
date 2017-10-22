@@ -1,12 +1,17 @@
 package main
 
 import (
-	"github.com/veandco/go-sdl2/mix"
-	"github.com/veandco/go-sdl2/sdl"
 	"log"
 	"os/user"
 	"path/filepath"
+
+	"github.com/veandco/go-sdl2/mix"
+	"github.com/veandco/go-sdl2/sdl"
 )
+
+func musicStopped() {
+	log.Println("Done playing music...")
+}
 
 func main() {
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
@@ -45,15 +50,14 @@ func main() {
 					log.Println("now:", sdl.GetAudioStatus())
 				}
 			}*/
+
+		mix.HookMusicFinished(musicStopped)
 		var running bool
-		var event sdl.Event
+		// var event sdl.Event
 		running = true
 		for running {
-			event = sdl.WaitEvent()
-			switch event.(type) {
-			case *sdl.QuitEvent:
-				running = false
-			}
+			sdl.Delay(3000)
+			running = mix.PlayingMusic()
 		}
 		music.Free()
 	}
