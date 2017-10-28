@@ -1,8 +1,11 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -10,17 +13,36 @@ import (
 	"github.com/aws/aws-sdk-go/service/polly"
 )
 
-func main() {
+func checkIfSpeechIsalreadyAvailable(rubensTextToSay string) (bool, string) {
+	hasher := sha1.New()
+	hasher.Write([]byte(rubensTextToSay))
+	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	fileName := fmt.Sprintf("./%s.mp3", sha)
+	fmt.Printf("mp3 file stored as:'%s'\n", fileName)
 
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		return false, ""
+	}
+	return true, fileName
+}
+
+func main() {
+	rubensTextToSay := "He'! Wie kietelt mij daar? Oke goed je hebt mijn aandacht. Ik zal zeggen wie ik ben. Ik heet Ruben. Hoe heet jij?"
+
+	fileExist, fileName := checkIfSpeechIsalreadyAvailable(rubensTextToSay)
+	if fileExist {
+		fmt.Println("mp3 is already available...")
+		return
+	}
 	sess := session.Must(session.NewSession())
 
 	svc := polly.New(sess, aws.NewConfig().WithRegion("eu-west-1"))
 	input := &polly.SynthesizeSpeechInput{
 		OutputFormat: aws.String("mp3"),
-		SampleRate:   aws.String("8000"),
-		Text:         aws.String("All Gaul is divided into three parts"),
+		SampleRate:   aws.String("16000"),
+		Text:         aws.String(rubensTextToSay),
 		TextType:     aws.String("text"),
-		VoiceId:      aws.String("Joanna"),
+		VoiceId:      aws.String("Ruben"),
 	}
 
 	result, err := svc.SynthesizeSpeech(input)
@@ -54,5 +76,5 @@ func main() {
 
 	fmt.Println(result)
 	data, err := ioutil.ReadAll(result.AudioStream)
-	ioutil.WriteFile("./result.mp3", data, 0644)
+	ioutil.WriteFile(fileName, data, 0644)
 }
