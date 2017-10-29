@@ -1,4 +1,4 @@
-package main
+package lotte
 
 import (
 	"log"
@@ -13,14 +13,14 @@ func musicStopped() {
 	log.Println("Done playing music...")
 }
 
-func main() {
+func Playmp3() {
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
 		log.Println(err)
 		return
 	}
 	defer sdl.Quit()
 
-	if err := mix.Init(mix.INIT_MP3); err != nil {
+	if err := mix.Init(mix.INIT_OGG); err != nil {
 		log.Println(err)
 		return
 	}
@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fileToPlay := filepath.Join(usr.HomeDir, "Music/test.mp3")
+	fileToPlay := filepath.Join(usr.HomeDir, "Music/test.ogg")
 	log.Println("fileToPlay:", fileToPlay)
 
 	if music, err := mix.LoadMUS(fileToPlay); err != nil {

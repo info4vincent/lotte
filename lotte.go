@@ -1,11 +1,14 @@
-package main
+package lotte
 
 import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"os/user"
+	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -17,28 +20,36 @@ func checkIfSpeechIsalreadyAvailable(rubensTextToSay string) (bool, string) {
 	hasher := sha1.New()
 	hasher.Write([]byte(rubensTextToSay))
 	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
-	fileName := fmt.Sprintf("./%s.mp3", sha)
-	fmt.Printf("mp3 file stored as:'%s'\n", fileName)
 
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		return false, ""
+	fileName := fmt.Sprintf("Music/%s.ogg", sha)
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
 	}
-	return true, fileName
+	fullfileName := filepath.Join(usr.HomeDir, fileName)
+	fmt.Printf("ogg file stored as:'%s'\n", fullfileName)
+
+	if _, err := os.Stat(fullfileName); os.IsNotExist(err) {
+		return false, fullfileName
+	}
+	return true, ""
 }
 
-func main() {
+func GetSpeech() {
 	rubensTextToSay := "He'! Wie kietelt mij daar? Oke goed je hebt mijn aandacht. Ik zal zeggen wie ik ben. Ik heet Ruben. Hoe heet jij?"
+
+	fmt.Println(rubensTextToSay)
 
 	fileExist, fileName := checkIfSpeechIsalreadyAvailable(rubensTextToSay)
 	if fileExist {
-		fmt.Println("mp3 is already available...")
+		fmt.Println("ogg is already available...")
 		return
 	}
 	sess := session.Must(session.NewSession())
 
 	svc := polly.New(sess, aws.NewConfig().WithRegion("eu-west-1"))
 	input := &polly.SynthesizeSpeechInput{
-		OutputFormat: aws.String("mp3"),
+		OutputFormat: aws.String("ogg_vorbis"),
 		SampleRate:   aws.String("16000"),
 		Text:         aws.String(rubensTextToSay),
 		TextType:     aws.String("text"),
@@ -76,5 +87,8 @@ func main() {
 
 	fmt.Println(result)
 	data, err := ioutil.ReadAll(result.AudioStream)
-	ioutil.WriteFile(fileName, data, 0644)
+	err = ioutil.WriteFile(fileName, data, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
