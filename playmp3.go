@@ -10,7 +10,7 @@ import (
 )
 
 func musicStopped() {
-	log.Println("Done playing music...")
+	log.Println("Done playing audio file...")
 }
 
 // PlayOgg Play's the ogg file
@@ -47,19 +47,11 @@ func PlayOgg(fileToPlay string) {
 	} else if err = music.Play(1); err != nil {
 		log.Println(err)
 	} else {
-		/*		if sdl.GetAudioStatus() == sdl.AUDIO_PLAYING {
-				for sdl.GetAudioStatus() == sdl.AUDIO_PLAYING {
-					sdl.Delay(5000)
-					log.Println("now:", sdl.GetAudioStatus())
-				}
-			}*/
-
 		mix.HookMusicFinished(musicStopped)
 		var running bool
-		// var event sdl.Event
 		running = true
 		for running {
-			sdl.Delay(3000)
+			sdl.Delay(100)
 			running = mix.PlayingMusic()
 		}
 		music.Free()
