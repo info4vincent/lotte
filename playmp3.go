@@ -26,7 +26,7 @@ func Playmp3() {
 	}
 	defer mix.Quit()
 
-	if err := mix.OpenAudio(22050, mix.DEFAULT_FORMAT, 2, 4096); err != nil {
+	if err := mix.OpenAudio(44100, mix.DEFAULT_FORMAT, 2, 4096); err != nil {
 		log.Println(err)
 		return
 	}
