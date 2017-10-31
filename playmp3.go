@@ -13,7 +13,9 @@ func musicStopped() {
 	log.Println("Done playing music...")
 }
 
-func Playmp3() {
+// PlayOgg Play's the ogg file
+// (omit the path this is set to usr.HomeDir/music)
+func PlayOgg(fileToPlay string) {
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
 		log.Println(err)
 		return
@@ -36,10 +38,11 @@ func Playmp3() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fileToPlay := filepath.Join(usr.HomeDir, "Music/test.ogg")
-	log.Println("fileToPlay:", fileToPlay)
+	fileToPlayfolder := filepath.Join(usr.HomeDir, "Music")
+	fullfileNameToPlay := filepath.Join(fileToPlayfolder, fileToPlay)
+	log.Println("fileToPlay:", fullfileNameToPlay)
 
-	if music, err := mix.LoadMUS(fileToPlay); err != nil {
+	if music, err := mix.LoadMUS(fullfileNameToPlay); err != nil {
 		log.Println(err)
 	} else if err = music.Play(1); err != nil {
 		log.Println(err)

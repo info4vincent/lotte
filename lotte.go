@@ -32,25 +32,25 @@ func checkIfSpeechIsalreadyAvailable(rubensTextToSay string) (bool, string) {
 	if _, err := os.Stat(fullfileName); os.IsNotExist(err) {
 		return false, fullfileName
 	}
-	return true, ""
+	return true, fullfileName
 }
 
-func GetSpeech() {
-	rubensTextToSay := "He'! Wie kietelt mij daar? Oke goed je hebt mijn aandacht. Ik zal zeggen wie ik ben. Ik heet Ruben. Hoe heet jij?"
+// GetSpeech downloads the speech file in ogg format and returns its fileName
+func GetSpeech(rubensTextToSay string) string {
 
 	fmt.Println(rubensTextToSay)
 
 	fileExist, fileName := checkIfSpeechIsalreadyAvailable(rubensTextToSay)
 	if fileExist {
 		fmt.Println("ogg is already available...")
-		return
+		return fileName
 	}
 	sess := session.Must(session.NewSession())
 
 	svc := polly.New(sess, aws.NewConfig().WithRegion("eu-west-1"))
 	input := &polly.SynthesizeSpeechInput{
 		OutputFormat: aws.String("ogg_vorbis"),
-		SampleRate:   aws.String("16000"),
+		SampleRate:   aws.String("22050"),
 		Text:         aws.String(rubensTextToSay),
 		TextType:     aws.String("text"),
 		VoiceId:      aws.String("Ruben"),
@@ -82,7 +82,7 @@ func GetSpeech() {
 			// Message from an error.
 			fmt.Println(err.Error())
 		}
-		return
+		return fileName
 	}
 
 	fmt.Println(result)
@@ -91,4 +91,5 @@ func GetSpeech() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	return fileName
 }
